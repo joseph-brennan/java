@@ -1,0 +1,143 @@
+<project name="Generic Build" default="all" basedir=".">
+    <description>
+        Build file for text processing demonstration project
+        Author: Dr. Jody Paul
+    </description>
+    <!-- $Id: build.xml 397 2016-11-09 23:15:21Z jody $ -->
+
+  <!-- set global properties for this build -->
+  <property name="src" location="."/>
+  <property name="doc" location="doc"/>
+  <property name="build" location="build"/>
+  <property name="dist" location="dist"/>
+  <property name="stylecheck" location="stylecheck"/>
+  <property name="test" location="test"/>
+  <property name="reports" location="${test}/reports"/>
+  <property name="lib" location="lib"/>
+
+  <path id="classpath">
+    <fileset dir="${lib}" includes="**/*.jar"/>
+  </path>
+
+
+  <target name="all" depends="clean, doc, report, checkstyle"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+    <!-- Ensure the ${lib} directory exists -->
+    <mkdir dir="${lib}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source" >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" classpathref="classpath"
+           debug="on" includeantruntime="false" encoding="cp1252"
+           memoryinitialsize="1024m" memorymaximumsize="1024m" fork="yes">
+      <compilerarg value="-Xlint"/>
+    </javac>
+  </target>
+
+  <target name="test" depends="compile"
+        description="run junit tests" >
+    <!-- Create the test results directory structure -->
+    <mkdir dir="${test}"/>
+    <mkdir dir="${reports}"/>
+    <!-- Execute JUnit tests and save in ${reports} -->
+    <junit printsummary="withOutAndErr" haltonfailure="no" showoutput="true">
+      <classpath>
+        <path refid="classpath"/>
+        <path location="${build}"/>
+      </classpath>
+      <formatter type="xml"/>
+      <!-- formatter type="plain" usefile="false" / -->
+      <!-- formatter type="plain"/ -->
+      <batchtest fork="yes" todir="${reports}">
+        <fileset dir="${src}" includes="*Test.java"/>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="report" depends="test"
+        description="format junit test results" >
+    <junitreport todir="${reports}">
+      <fileset dir="${reports}" includes="TEST-*.xml"/>
+      <report todir="${reports}"/>
+    </junitreport>
+    <echo></echo>
+    <echo>Report root: ${reports}/index.html</echo>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}"/>
+    <!-- Put everything in ${build} into the ${ant.project.name}-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/${ant.project.name}-${DSTAMP}.jar" basedir="${build}"/>
+  </target>
+
+  <target name="doc" depends="init"
+        description="generate the documentation" >
+    <!-- Create the documentation directory -->
+    <mkdir dir="${doc}"/>
+    <!-- Generate the API documentation for ${src} in ${doc} -->
+    <javadoc access="private" destdir="${doc}" classpathref="classpath" encoding="cp1252" additionalparam="-Xdoclint:none">
+      <fileset dir="${src}" casesensitive="yes" defaultexcludes="yes">
+        <filename name="**/*.java"/>
+      </fileset>
+      <link href="http://download.oracle.com/javase/8/docs/api/" />
+    </javadoc>
+  </target>
+
+  <!-- Define checkstyle task -->
+  <target name="checkstyle" depends="init"
+	  description="generate checkstyle report" >
+    <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+	     classpath="${lib}/checkstyle.jar" />
+    <!-- Verify installation -->
+    <available file="${lib}/checkstyle.jar"
+	       property="checkstyle.available" />
+    <fail unless="checkstyle.available"
+	  message="Error: checkstyle.jar not found." />
+    <available file="${lib}/jp_checks.xml"
+	       property="checks.available" />
+    <fail unless="checks.available"
+	  message="Error: jp_checks.xml not found." />
+    <!-- Create the checkstyle results directory structure -->
+    <mkdir dir="${stylecheck}"/>
+    <!-- Run checkstyle and save results in ${stylecheck} -->
+    <checkstyle config="${lib}/jp_checks.xml"
+		failureProperty="checkstyle.failure"
+		failOnViolation="false" >
+      <fileset dir="${src}" includes="**/*.java" />
+      <formatter type="plain" />
+      <formatter type="xml" tofile="${stylecheck}/checkstyle_report.xml" />
+    </checkstyle>
+    <xslt  in="${stylecheck}/checkstyle_report.xml"
+	   out="${stylecheck}/checkstyle_report.html"
+	   style="${lib}/checkstyle.xsl" />
+    <!-- copy file="${lib}/checkstyle-logo.png" todir="${stylecheck}"/ -->
+    <echo></echo>
+    <echo>Checkstyle Report root: ${stylecheck}/checkstyle_report.html</echo>
+  </target>
+
+
+  <target name="clean"
+          description="clean up">
+    <!-- Delete the ${build} ${dist} ${doc} ${test} ${reports} and ${stylecheck} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    <delete dir="${doc}"/>
+    <delete dir="${reports}"/>
+    <delete dir="${test}"/>
+    <delete dir="${stylecheck}"/>
+    <!-- Delete serialization test files -->
+    <delete>
+      <fileset dir="." includes="*.ser"/>
+    </delete>
+  </target>
+
+</project>

@@ -172,7 +172,7 @@ public class Hangman implements HangmanManager {
         guessedChar.add(guess);
 
         givenDictionary = deviousDictionary(givenDictionary, guess);
-        System.out.println("\n" + givenDictionary.toString() + "\n");
+//        System.out.println("\n" + givenDictionary.toString() + "\n");
 
         this.gamePattern = contructPattern(givenDictionary.iterator().next());
 
@@ -239,8 +239,12 @@ public class Hangman implements HangmanManager {
                     && list.size() > max && list.contains(guess)) {
                 break;
 
-            } else if (list.size() > max)  {
+            } else if (list.size() > max && !(list.contains(guess)))  {
 
+                max = list.size();
+
+                maxList = list;
+            } else if (list.size() > max) {
                 max = list.size();
 
                 maxList = list;

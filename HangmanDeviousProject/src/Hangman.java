@@ -172,7 +172,7 @@ public class Hangman implements HangmanManager {
         guessedChar.add(guess);
 
         givenDictionary = deviousDictionary(givenDictionary, guess);
-//        System.out.println("\n" + givenDictionary.toString() + "\n");
+        System.out.println("\n" + givenDictionary.toString() + "\n");
 
         this.gamePattern = contructPattern(givenDictionary.iterator().next());
 
@@ -222,7 +222,7 @@ public class Hangman implements HangmanManager {
 
             String pattern = contructPattern(word);
 
-            if (dictionaryPattern.containsKey(pattern)) {
+            if (dictionaryPattern.keySet().contains(pattern)) {
 
                 dictionaryPattern.get(pattern).add(word);
             } else {
@@ -235,21 +235,11 @@ public class Hangman implements HangmanManager {
         List<String> maxList = new ArrayList<String>();
 
         for (List<String> list : dictionaryPattern.values()) {
-            if (dictionaryPattern.values().size() == 2
-                    && list.size() > max && list.contains(guess)) {
-                break;
-
-            } else if (list.size() > max && !(list.contains(guess)))  {
-
-                max = list.size();
-
-                maxList = list;
-            } else if (list.size() > max) {
+            if (list.size() >= max) {
                 max = list.size();
 
                 maxList = list;
             }
-                
         }
         return new TreeSet<String>(maxList);
         

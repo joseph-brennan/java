@@ -179,7 +179,6 @@ public class Hangman implements HangmanManager {
 
         guessedChar.add(guess);
 
-        
         this.gamePattern = contructPattern(givenDictionary.iterator().next());
 
         for (int i = 0; i < givenDictionary.iterator().next().length(); i++) {

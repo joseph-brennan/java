@@ -171,8 +171,8 @@ public class Hangman implements HangmanManager {
 
         guessedChar.add(guess);
 
-        givenDictionary = deviousDictionary(givenDictionary, guess);
-        System.out.println("\n" + givenDictionary.toString() + "\n");
+        givenDictionary = deviousDictionary(givenDictionary);
+//        System.out.println("\n" + givenDictionary.toString() + "\n");
 
         this.gamePattern = contructPattern(givenDictionary.iterator().next());
 
@@ -209,13 +209,12 @@ public class Hangman implements HangmanManager {
      * dictionary.
      *
      * @param dictionary the current dictionary
-     * @param guess the current letter guessed
      * @return the largest dictionary
      */
     private Set<String> deviousDictionary(
-            final Set<String> dictionary, final char guess) {
+            final Set<String> dictionary) {
 
-        Map<String, List<String>> dictionaryPattern = 
+        Map<String, List<String>> dictionaryPattern =
                 new HashMap<String, List<String>>();
 
         for (String word : dictionary) {
@@ -242,6 +241,6 @@ public class Hangman implements HangmanManager {
             }
         }
         return new TreeSet<String>(maxList);
-        
+
     }
 }
